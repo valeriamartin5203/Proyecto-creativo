@@ -31,3 +31,23 @@ socket.on("playersUpdate", (players) => {
         game.appendChild(jugador);
     }
 });
+
+// en este apartado ponermos el movimiento del jugador
+document.addEventListener("keydown", (e) => {
+    const speed = 10; // Velocidad de movimiento
+    if (e.key === "ArrowUp") myposition.y -= Speed;
+    if (e.key === "ArrowDown") myposition.y += Speed;
+    if (e.key === "ArrowLeft") myposition.x -= Speed;
+    if (e.key === "ArrowRight") myposition.x += Speed;
+
+    // Enviamos la nueva posición al servidor
+    socket.emit("move", myposition);
+});
+
+
+//cambiar de sala 
+function changeRoom(newRoom) {
+    socket.emit("changeRoom", newRoom);
+
+    myposition = {x: 100, y: 100}; // Reiniciamos la posición al cambiar de sala
+}
