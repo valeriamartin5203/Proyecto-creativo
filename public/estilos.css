@@ -1,7 +1,9 @@
 body
 {
     font-family: Arial, sans-serif;
-    background-color: #acf795;
+    background-image: url(fondos\ de\ el\ juego.jfif);
+    background-size: cover;
+    background-position: center;
 }
 
 #game
