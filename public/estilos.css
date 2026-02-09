@@ -12,7 +12,9 @@ body
     width: 800px;
     height: 500px;
     margin: auto;
-    background-color: #fff;
+    background-image: url(plaza.jfif);
+    background-size: cover;
+    background-position: center;
     border: 3px solid #000000;
     overflow: hidden;
 }
@@ -36,4 +38,11 @@ body
     background: white;
     padding: 1px 5px;
     border-radius: 6px;
+}
+
+h2
+{
+    color: white;
+    background-position: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
