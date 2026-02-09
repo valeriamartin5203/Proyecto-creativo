@@ -1,53 +1,59 @@
-// conectamos a los jugadores usando a socket.io
+// Conectamos a los jugadores usando Socket.io
 const socket = io();
 
-//de pedimos al usuario que agrege un nombre para su usuario
-const usermane = prompt("Ingresa tu nombre de usuario:");
+// Pedimos al usuario que agregue un nombre
+const username = prompt("Ingresa tu nombre de usuario:") || "Invitado";
 
-//enviamos el nombre al servidor para que lo guarde
-socket.emit("joinGame", usermane);
+// Enviamos el nombre al servidor
+socket.emit("joinGame", username);
 
-// obtenemos el elemento del juego
-const game=document.getElementById("game");
+// Obtenemos el elemento del juego
+const game = document.getElementById("game");
 
-// guardamos los datos del jugador
-const playerselements= {};
+// Posición del jugador actual
+let myPosition = { x: 100, y: 100 };
 
-// la posicion de tendra el jugador
-let myposition = {x: 100, y: 100};
-
-// escuchamos los datos de los jugadores
+// Escuchamos los datos de los jugadores
 socket.on("playersUpdate", (players) => {
-    game.innerHTML = ""; // Limpiamos el juego antes de dibujar
+    game.innerHTML = ""; // Limpiamos el área de juego
+
     for (const id in players) {
         const player = players[id];
-       
-        const playerElement = document.createElement("div");
-        jugador.className = "player";
-        jugador.style.left = player.x + "px";
-        jugador.style.top = player.y + "px";
-        jugador.innerText = player.name;
 
-        game.appendChild(jugador);
+        const playerElement = document.createElement("div");
+        playerElement.className = "player";
+
+        playerElement.style.left = player.x + "px";
+        playerElement.style.top = player.y + "px";
+
+        // Nombre del jugador
+        const name = document.createElement("span");
+        name.textContent = player.name;
+
+        playerElement.appendChild(name);
+        game.appendChild(playerElement);
     }
 });
 
-// en este apartado ponermos el movimiento del jugador
+// Movimiento del jugador
 document.addEventListener("keydown", (e) => {
-    const speed = 10; // Velocidad de movimiento
-    if (e.key === "ArrowUp") myposition.y -= Speed;
-    if (e.key === "ArrowDown") myposition.y += Speed;
-    if (e.key === "ArrowLeft") myposition.x -= Speed;
-    if (e.key === "ArrowRight") myposition.x += Speed;
+    const speed = 10;
+
+    if (e.key === "ArrowUp") myPosition.y -= speed;
+    if (e.key === "ArrowDown") myPosition.y += speed;
+    if (e.key === "ArrowLeft") myPosition.x -= speed;
+    if (e.key === "ArrowRight") myPosition.x += speed;
+
+    // Límites del mapa
+    myPosition.x = Math.max(0, Math.min(755, myPosition.x));
+    myPosition.y = Math.max(0, Math.min(455, myPosition.y));
 
     // Enviamos la nueva posición al servidor
-    socket.emit("move", myposition);
+    socket.emit("move", myPosition);
 });
 
-
-//cambiar de sala 
+// Cambiar de sala
 function changeRoom(newRoom) {
     socket.emit("changeRoom", newRoom);
-
-    myposition = {x: 100, y: 100}; // Reiniciamos la posición al cambiar de sala
+    myPosition = { x: 100, y: 100 };
 }

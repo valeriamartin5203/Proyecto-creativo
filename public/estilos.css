@@ -18,12 +18,20 @@ body
 .player
 {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background-color: #4da6ff;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
-    text-align: center;
+    background: linear-gradient(135deg, #6ec6ff, #2196f3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player span{
+    position: absolute;
+    top: -15px;
     font-size: 10px;
-    color: white;
-    padding-top: 12px;
+    background: white;
+    padding: 1px 5px;
+    border-radius: 6px;
 }
