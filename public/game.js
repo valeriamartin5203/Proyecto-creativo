@@ -1,24 +1,41 @@
-// Conectamos a los jugadores usando Socket.io
+// ================================
+// CONEXIÓN
+// ================================
 const socket = io();
 
-// Pedimos al usuario que agregue un nombre
+// Nombre del jugador
 const username = prompt("Ingresa tu nombre de usuario:") || "Invitado";
 
 // Enviamos el nombre al servidor
 socket.emit("joinGame", username);
 
-// Obtenemos el elemento del juego
+// ================================
+// ELEMENTOS DEL DOM
+// ================================
 const game = document.getElementById("game");
+const mensajes = document.getElementById("mensajes");
+const texto = document.getElementById("texto");
 
-// Posición del jugador actual
+// ================================
+// ESTADO DEL JUGADOR
+// ================================
 let myPosition = { x: 100, y: 100 };
+let currentRoom = "plaza";
 
-// Escuchamos los datos de los jugadores
+// Fondo inicial
+game.classList.add("plaza");
+
+// ================================
+// ACTUALIZACIÓN DE JUGADORES
+// ================================
 socket.on("playersUpdate", (players) => {
-    game.innerHTML = ""; // Limpiamos el área de juego
+    game.innerHTML = "";
 
     for (const id in players) {
         const player = players[id];
+
+        // Solo dibujar jugadores de la misma sala
+        if (player.room !== currentRoom) continue;
 
         const playerElement = document.createElement("div");
         playerElement.className = "player";
@@ -35,7 +52,9 @@ socket.on("playersUpdate", (players) => {
     }
 });
 
-// Movimiento del jugador
+// ================================
+// MOVIMIENTO
+// ================================
 document.addEventListener("keydown", (e) => {
     const speed = 10;
 
@@ -48,12 +67,44 @@ document.addEventListener("keydown", (e) => {
     myPosition.x = Math.max(0, Math.min(755, myPosition.x));
     myPosition.y = Math.max(0, Math.min(455, myPosition.y));
 
-    // Enviamos la nueva posición al servidor
     socket.emit("move", myPosition);
 });
 
-// Cambiar de sala
+// ================================
+// CAMBIO DE SALA
+// ================================
 function changeRoom(newRoom) {
     socket.emit("changeRoom", newRoom);
+
+    // Cambiar fondo
+    game.classList.remove(currentRoom);
+    game.classList.add(newRoom);
+    currentRoom = newRoom;
+
+    // Limpiar pantalla
+    game.innerHTML = "";
+
+    // Reiniciar posición
     myPosition = { x: 100, y: 100 };
+}
+
+// ================================
+// CHAT
+// ================================
+socket.on("mensaje", (data) => {
+    const p = document.createElement("p");
+    p.textContent = `${data.usuario}: ${data.texto}`;
+    mensajes.appendChild(p);
+    mensajes.scrollTop = mensajes.scrollHeight;
+});
+
+function enviar() {
+    if (texto.value.trim() === "") return;
+
+    socket.emit("mensaje", {
+        usuario: username,
+        texto: texto.value
+    });
+
+    texto.value = "";
 }
