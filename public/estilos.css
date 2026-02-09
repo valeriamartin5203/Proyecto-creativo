@@ -25,7 +25,7 @@ body
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6ec6ff, #2196f3);
+    background: linear-gradient(135deg, #6ec6ff, #f6f7f8);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,7 +42,9 @@ body
 
 h2
 {
-    color: white;
-    background-position: center;
+    color: rgb(255, 254, 254);
+    background-position: center; 
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
+
+
