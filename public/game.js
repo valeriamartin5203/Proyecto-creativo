@@ -15,6 +15,8 @@ socket.emit("joinGame", username);
 const game = document.getElementById("game");
 const mensajes = document.getElementById("mensajes");
 const texto = document.getElementById("texto");
+const chatBtn = document.getElementById("chatBtn");
+const chatContainer = document.getElementById("chatContainer");
 
 // ================================
 // ESTADO DEL JUGADOR
@@ -91,6 +93,7 @@ function changeRoom(newRoom) {
 // ================================
 // CHAT
 // ================================
+
 socket.on("mensaje", (data) => {
     const p = document.createElement("p");
     p.textContent = `${data.usuario}: ${data.texto}`;
@@ -99,12 +102,9 @@ socket.on("mensaje", (data) => {
 });
 
 function enviar() {
-    if (texto.value.trim() === "") return;
+    const texto = document.getElementById("texto").value;
+    if (texto.trim() === "") return;
 
-    socket.emit("mensaje", {
-        usuario: username,
-        texto: texto.value
-    });
-
-    texto.value = "";
+    socket.emit("mensaje", texto);
+    document.getElementById("texto").value = "";
 }
