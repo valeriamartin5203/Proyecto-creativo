@@ -2,24 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>word</title>
+    <title>World </title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
 
-<h2>word</h2>
+<h2 style="text-align:center;"> World</h2>
 
-<div class="container-fluid">
-    <div class = "row">
-        
-    <div id="room-selection">
-        <button onclick="changeRoom('plaza')">Plaza</button>
-        <button onclick="changeRoom('cafe')">Café</button>
-    </div>
+<!-- BOTONES DE SALAS -->
+<div id="room-selection" style="text-align:center; margin-bottom:10px;">
+    <button onclick="changeRoom('plaza')">Plaza</button>
+    <button onclick="changeRoom('cafe')">Café</button>
+</div>
 
+<!-- JUEGO -->
 <div id="game"></div>
 
+<!-- BOTÓN CHAT -->
+<button id="chatBtn">💬 Chat</button>
+
+<!-- CHAT -->
+<div id="chatContainer" class="hidden">
+    <div id="mensajes"></div>
+
+    <div class="chat-input">
+        <input type="text" id="texto" placeholder="Escribe un mensaje..." />
+        <button onclick="enviar()">Enviar</button>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="game.js"></script>
+
 </body>
 </html>
