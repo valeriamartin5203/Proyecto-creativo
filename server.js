@@ -8,13 +8,11 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
-// En esta parte se guardan los usuatios conectados
 const players = {};
 
 io.on("connection", (socket) => {
-    console.log("🟢 Usuario conectado:", socket.id); 
+    console.log("🟢 Usuario conectado:", socket.id);
 
-    // Cuando un jugador entra al juego
     socket.on("joinGame", (username) => {
         players[socket.id] = {
             id: socket.id,
@@ -25,12 +23,9 @@ io.on("connection", (socket) => {
         };
 
         socket.join("plaza");
-
-        // Enviamos los jugadores actuales
         io.to("plaza").emit("playersUpdate", players);
     });
 
-    // Movimiento del jugador
     socket.on("move", (data) => {
         if (!players[socket.id]) return;
 
@@ -40,23 +35,25 @@ io.on("connection", (socket) => {
         io.to(players[socket.id].room).emit("playersUpdate", players);
     });
 
-    // Cambio de sala
     socket.on("changeRoom", (newRoom) => {
         if (!players[socket.id]) return;
 
-        const oldRoom = players[socket.id].room;
-
-        socket.leave(oldRoom);
+        socket.leave(players[socket.id].room);
         socket.join(newRoom);
-
         players[socket.id].room = newRoom;
 
         io.emit("playersUpdate", players);
     });
 
-    // Desconexión
+    // ✅ CHAT
+    socket.on("mensaje", (data) => {
+        io.to(players[socket.id]?.room || "plaza").emit("mensaje", {
+            usuario: players[socket.id]?.name || "Jugador",
+            texto: data
+        });
+    });
+
     socket.on("disconnect", () => {
-        console.log("🔴 Usuario desconectado:", socket.id);
         delete players[socket.id];
         io.emit("playersUpdate", players);
     });
