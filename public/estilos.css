@@ -19,11 +19,16 @@ body
 
 #game.plaza 
 {
-    background-image: url(plaza.jfif);
+    background-image: url(fondo\ protitipo\ plaza.jfif);
     background-size: cover;
     background-position: center;
  }
-#game.cafe { background: #fff2cc; }
+#game.cafe 
+{
+    background-image: url(fondo\ protitipo\ cafe.jfif);
+    background-size: cover;
+    background-position: center;; 
+}
 
 
 .player
