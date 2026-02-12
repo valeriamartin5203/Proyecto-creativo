@@ -1,110 +1,258 @@
-// ================================
-// CONEXIÓN
-// ================================
+// ==========================================
+// 🎮 CONEXIÓN AL SERVIDOR
+// ==========================================
 const socket = io();
 
-// Nombre del jugador
+// Pedimos nombre
 const username = prompt("Ingresa tu nombre de usuario:") || "Invitado";
 
-// Enviamos el nombre al servidor
+// Enviamos nombre al servidor
 socket.emit("joinGame", username);
 
-// ================================
-// ELEMENTOS DEL DOM
-// ================================
+
+
+// ==========================================
+// 📦 ELEMENTOS DEL DOM
+// ==========================================
 const game = document.getElementById("game");
 const mensajes = document.getElementById("mensajes");
 const texto = document.getElementById("texto");
-const chatBtn = document.getElementById("chatBtn");
-const chatContainer = document.getElementById("chatContainer");
 
-// ================================
-// ESTADO DEL JUGADOR
-// ================================
-let myPosition = { x: 100, y: 100 };
+
+
+// ==========================================
+// 👤 ESTADO DEL JUGADOR
+// ==========================================
+let myPosition = { x: 375, y: 225 };
 let currentRoom = "plaza";
+
+// Enviar posición inicial
+socket.emit("move", myPosition);
 
 // Fondo inicial
 game.classList.add("plaza");
 
-// ================================
-// ACTUALIZACIÓN DE JUGADORES
-// ================================
+
+
+// ==========================================
+// 🧱 OBJETOS Y COLISIONES POR SALA
+// Cada objeto tiene su propia caja de colisión
+// ==========================================
+const roomObjects = {
+
+    plaza: [
+        {
+            name: "fuente",
+            x: 300,
+            y: 200,
+            width: 200,
+            height: 50
+        },
+        {
+            name: "arbol",
+            x: 100,
+            y: 350,
+            width: 150,
+            height: 40
+        }
+    ],
+
+    caferia: [
+        {
+            name: "mesa",
+            x: 150,
+            y: 150,
+            width: 250,
+            height: 30
+        }
+    ]
+};
+
+
+
+// ==========================================
+// 🚧 FUNCIÓN DE COLISIÓN
+// Detecta si el jugador toca un objeto
+// ==========================================
+function isColliding(newX, newY) {
+
+    const playerWidth = 45;
+    const playerHeight = 45;
+
+    const objects = roomObjects[currentRoom] || [];
+
+    for (let obj of objects) {
+
+        if (
+            newX < obj.x + obj.width &&
+            newX + playerWidth > obj.x &&
+            newY < obj.y + obj.height &&
+            newY + playerHeight > obj.y
+        ) {
+            return true; // Hay colisión
+        }
+    }
+
+    return false; // No hay colisión
+}
+
+
+
+// ==========================================
+// 👥 ACTUALIZACIÓN DE JUGADORES
+// Dibuja todos los jugadores en pantalla
+// ==========================================
 socket.on("playersUpdate", (players) => {
+
+    // Limpiar pantalla
     game.innerHTML = "";
 
     for (const id in players) {
+
         const player = players[id];
 
-        // Solo dibujar jugadores de la misma sala
+        // Solo mostrar jugadores de la misma sala
         if (player.room !== currentRoom) continue;
 
         const playerElement = document.createElement("div");
         playerElement.className = "player";
+        playerElement.id = id;
 
         playerElement.style.left = player.x + "px";
         playerElement.style.top = player.y + "px";
 
-        // Nombre del jugador
+        // Nombre arriba del jugador
         const name = document.createElement("span");
         name.textContent = player.name;
 
         playerElement.appendChild(name);
         game.appendChild(playerElement);
     }
+
+    // 🔥 Dibujar colisiones (modo debug)
+    drawCollisions();
 });
 
-// ================================
-// MOVIMIENTO
-// ================================
+
+
+// ==========================================
+// 🎯 MOVIMIENTO DEL JUGADOR
+// ==========================================
 document.addEventListener("keydown", (e) => {
+
     const speed = 10;
 
-    if (e.key === "ArrowUp") myPosition.y -= speed;
-    if (e.key === "ArrowDown") myPosition.y += speed;
-    if (e.key === "ArrowLeft") myPosition.x -= speed;
-    if (e.key === "ArrowRight") myPosition.x += speed;
+    let newX = myPosition.x;
+    let newY = myPosition.y;
+
+    if (e.key === "ArrowUp") newY -= speed;
+    if (e.key === "ArrowDown") newY += speed;
+    if (e.key === "ArrowLeft") newX -= speed;
+    if (e.key === "ArrowRight") newX += speed;
 
     // Límites del mapa
-    myPosition.x = Math.max(0, Math.min(755, myPosition.x));
-    myPosition.y = Math.max(0, Math.min(455, myPosition.y));
+    newX = Math.max(0, Math.min(755, newX));
+    newY = Math.max(0, Math.min(455, newY));
 
-    socket.emit("move", myPosition);
+    // Verificar colisión
+    if (!isColliding(newX, newY)) {
+
+        myPosition.x = newX;
+        myPosition.y = newY;
+
+        socket.emit("move", myPosition);
+
+        const myPlayer = document.getElementById(socket.id);
+        if (myPlayer) {
+            myPlayer.classList.add("walking");
+        }
+    }
 });
 
-// ================================
-// CAMBIO DE SALA
-// ================================
+
+
+// ==========================================
+// 🛑 DETENER ANIMACIÓN AL SOLTAR TECLA
+// ==========================================
+document.addEventListener("keyup", (e) => {
+
+    if (
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight"
+    ) {
+        const myPlayer = document.getElementById(socket.id);
+        if (myPlayer) {
+            myPlayer.classList.remove("walking");
+        }
+    }
+});
+
+
+
+// ==========================================
+// 🚪 CAMBIO DE SALA
+// ==========================================
 function changeRoom(newRoom) {
+
     socket.emit("changeRoom", newRoom);
 
-    // Cambiar fondo
     game.classList.remove(currentRoom);
     game.classList.add(newRoom);
+
     currentRoom = newRoom;
 
-    // Limpiar pantalla
     game.innerHTML = "";
 
-    // Reiniciar posición
-    myPosition = { x: 100, y: 100 };
+    myPosition = { x: 375, y: 225 };
+
+    socket.emit("move", myPosition);
 }
 
-// ================================
-// CHAT
-// ================================
 
+
+// ==========================================
+// 💬 CHAT
+// ==========================================
 socket.on("mensaje", (data) => {
+
     const p = document.createElement("p");
     p.textContent = `${data.usuario}: ${data.texto}`;
+
     mensajes.appendChild(p);
     mensajes.scrollTop = mensajes.scrollHeight;
 });
 
 function enviar() {
-    const texto = document.getElementById("texto").value;
-    if (texto.trim() === "") return;
 
-    socket.emit("mensaje", texto);
-    document.getElementById("texto").value = "";
+    if (texto.value.trim() === "") return;
+
+    socket.emit("mensaje", texto.value);
+    texto.value = "";
+}
+
+
+
+// ==========================================
+// 🟥 DEBUG VISUAL DE COLISIONES
+// (Solo para ver las cajas, puedes borrarlo luego)
+// ==========================================
+function drawCollisions() {
+
+    const objects = roomObjects[currentRoom] || [];
+
+    for (let obj of objects) {
+
+        const box = document.createElement("div");
+        box.style.position = "absolute";
+        box.style.left = obj.x + "px";
+        box.style.top = obj.y + "px";
+        box.style.width = obj.width + "px";
+        box.style.height = obj.height + "px";
+        box.style.border = "2px solid red";
+        box.style.pointerEvents = "none";
+
+        game.appendChild(box);
+    }
 }
