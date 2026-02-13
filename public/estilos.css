@@ -1,7 +1,7 @@
 body
 {
     font-family: Arial, sans-serif;
-    background-image: url("fondos de el juego.jfif");
+    background-image: url("fondos/fondos\ de\ el\ juego.jfif");
     background-size: cover;
     background-position: center;
 }
@@ -24,15 +24,14 @@ body
 
 #game.plaza 
 {
-    background-image: url("parque.jpeg");
-    background-size: cover;
+    background-image: url("fondos/parque.jpeg");
     background-position: center;
 }
 
 #game.cafe 
 {
-    background-image: url("cafe.jpeg");
-    background-size: cover;
+    background-image: url("fondos/cafe.jpeg");
+
     background-position: center;; 
 }
 
@@ -41,16 +40,11 @@ body
     position: absolute;
     width: 50px;
     height: 50px;
-
-    background-image: url("personajebeta.jfif");
+    background-image: url("personaje/frente.jpeg");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 
-}
-
-.player.walking {
-    background-image: url("caminar.gif");
 }
 
 

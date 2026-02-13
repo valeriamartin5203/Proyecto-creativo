@@ -160,26 +160,6 @@ document.addEventListener("keydown", (e) => {
 
 
 // ==========================================
-// 🛑 DETENER ANIMACIÓN AL SOLTAR TECLA
-// ==========================================
-document.addEventListener("keyup", (e) => {
-
-    if (
-        e.key === "ArrowUp" ||
-        e.key === "ArrowDown" ||
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowRight"
-    ) {
-        const myPlayer = document.getElementById(socket.id);
-        if (myPlayer) {
-            myPlayer.classList.remove("walking");
-        }
-    }
-});
-
-
-
-// ==========================================
 // 🚪 CAMBIO DE SALA
 // ==========================================
 function changeRoom(newRoom) {
