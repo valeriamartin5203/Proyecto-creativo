@@ -43,27 +43,15 @@ const roomObjects = {
     plaza: [
         {
             name: "fuente",
-            x: 300,
-            y: 200,
-            width: 200,
-            height: 50
         },
         {
             name: "arbol",
-            x: 100,
-            y: 350,
-            width: 150,
-            height: 40
         }
     ],
 
     caferia: [
         {
             name: "mesa",
-            x: 150,
-            y: 150,
-            width: 250,
-            height: 30
         }
     ]
 };
