@@ -24,11 +24,15 @@ game.classList.add(currentRoom);
 // ==========================================
 const mapasColisiones = {
   plaza: [
-    { x: 200, y: 100, width: 300, height: 50 },
-    { x: 600, y: 250, width: 100, height: 200 }
+    { x: 350, y: 0, width: 500, height: 120 },
+    { x: 900, y: 0, width: 1000, height: 525 },
+    { x: 0, y: 0, width: 100, height: 600 }
+    
   ],
-  bosque: [
-    { x: 100, y: 350, width: 400, height: 60 }
+  cafe: [
+    { x: 300, y: 115, width: 180, height: 180 }, //mesita
+    { x: 0, y: 0, width: 100, height: 600 },  //pared
+    { x: 850, y: 0, width: 650, height: 900 } //barra
   ],
   castillo: [
     { x: 250, y: 150, width: 300, height: 80 }
@@ -143,31 +147,7 @@ function colisionRect(player, wall) {
   );
 }
 
-// ==========================================
-// 🔍 DIBUJAR COLISIONES (DEBUG)
-// ==========================================
-function dibujarColisiones() {
 
-  const viejas = document.querySelectorAll(".debug-wall");
-  viejas.forEach(w => w.remove());
-
-  if (!mostrarColisiones) return;
-
-  const colisiones = mapasColisiones[currentRoom] || [];
-
-  for (let wall of colisiones) {
-    const debug = document.createElement("div");
-    debug.className = "debug-wall";
-    debug.style.position = "absolute";
-    debug.style.left = wall.x + "px";
-    debug.style.top = wall.y + "px";
-    debug.style.width = wall.width + "px";
-    debug.style.height = wall.height + "px";
-    debug.style.backgroundColor = "rgba(255, 0, 0, 0.4)";
-    debug.style.pointerEvents = "none";
-    game.appendChild(debug);
-  }
-}
 
 // ==========================================
 // 🎮 MOVIMIENTO CON COLISIÓN
