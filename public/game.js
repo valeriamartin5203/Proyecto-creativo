@@ -25,6 +25,8 @@ const texto = document.getElementById("texto");
 // ==========================================
 let myPosition = { x: 375, y: 225 };
 let currentRoom = "plaza";
+let currentDirection = "down"; // dirección inicial
+
 
 // Enviar posición inicial
 socket.emit("move", myPosition);
