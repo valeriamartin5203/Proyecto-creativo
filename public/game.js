@@ -100,16 +100,9 @@ const otherPlayersDivs = {};
 
 socket.on("playersUpdate", (players) => {
 
-  const me = players[socket.id];
-  if (me) {
-    myPosition.x = me.x;
-    myPosition.y = me.y;
-    currentDirection = me.direction || "down";
-    updateVisual();
-  }
-
   for (const id in players) {
-    if (id === socket.id) continue;
+
+    if (id === socket.id) continue; // 👈 IGNORA TU PROPIO JUGADOR
 
     const p = players[id];
     let div = otherPlayersDivs[id];
@@ -127,6 +120,7 @@ socket.on("playersUpdate", (players) => {
       `url("${getSpritePath(p.direction || "down")}")`;
   }
 
+  // eliminar jugadores que ya no están
   for (const id in otherPlayersDivs) {
     if (!players[id]) {
       game.removeChild(otherPlayersDivs[id]);
@@ -134,6 +128,7 @@ socket.on("playersUpdate", (players) => {
     }
   }
 });
+
 
 // ==========================================
 // 🧠 FUNCIÓN DE COLISIÓN
