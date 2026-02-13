@@ -57,16 +57,16 @@ body {
 
 /* Direcciones (sprites del personaje) */
 .player.down {
-    background-image: url("personaje-abajo.png");
+    background-image: url("personaje/frente.png");
 }
 .player.up {
-    background-image: url("personaje-arriba.png");
+    background-image: url("personaje/arriba.png");
 }
 .player.left {
-    background-image: url("personaje-izquierda.png");
+    background-image: url("personaje/izquierda.png");
 }
 .player.right {
-    background-image: url("personaje-derecha.png");
+    background-image: url("personaje/derecha.png");
 }
 
 /* Nombre del jugador arriba del personaje */

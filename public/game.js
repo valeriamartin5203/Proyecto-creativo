@@ -9,16 +9,12 @@ const username = prompt("Ingresa tu nombre de usuario:") || "Invitado";
 // Enviamos nombre al servidor
 socket.emit("joinGame", username);
 
-
-
 // ==========================================
 // 📦 ELEMENTOS DEL DOM
 // ==========================================
 const game = document.getElementById("game");
 const mensajes = document.getElementById("mensajes");
 const texto = document.getElementById("texto");
-
-
 
 // ==========================================
 // 👤 ESTADO DEL JUGADOR
@@ -27,85 +23,59 @@ let myPosition = { x: 375, y: 225 };
 let currentRoom = "plaza";
 let currentDirection = "down"; // dirección inicial
 
-
-// Enviar posición inicial
-socket.emit("move", myPosition);
+// Enviar posición inicial con dirección
+socket.emit("move", { ...myPosition, direction: currentDirection });
 
 // Fondo inicial
-game.classList.add("plaza");
-
-
+game.classList.add(currentRoom);
 
 // ==========================================
 // 🧱 OBJETOS Y COLISIONES POR SALA
-// Cada objeto tiene su propia caja de colisión
 // ==========================================
 const roomObjects = {
-
     plaza: [
-        {
-            name: "fuente",
-        },
-        {
-            name: "arbol",
-        }
+        { name: "fuente", x: 300, y: 200, width: 50, height: 50 },
+        { name: "arbol", x: 500, y: 300, width: 60, height: 80 }
     ],
-
-    caferia: [
-        {
-            name: "mesa",
-        }
+    cafe: [
+        { name: "mesa", x: 400, y: 250, width: 60, height: 40 }
     ]
 };
 
-
-
 // ==========================================
 // 🚧 FUNCIÓN DE COLISIÓN
-// Detecta si el jugador toca un objeto
 // ==========================================
 function isColliding(newX, newY) {
-
     const playerWidth = 45;
     const playerHeight = 45;
 
     const objects = roomObjects[currentRoom] || [];
-
     for (let obj of objects) {
-
         if (
             newX < obj.x + obj.width &&
             newX + playerWidth > obj.x &&
             newY < obj.y + obj.height &&
             newY + playerHeight > obj.y
-        ) {
-            return true; // Hay colisión
-        }
+        ) return true;
     }
 
-    return false; // No hay colisión
+    return false;
 }
-
-
 
 // ==========================================
 // 👥 ACTUALIZACIÓN DE JUGADORES
-// Dibuja todos los jugadores en pantalla
 // ==========================================
 socket.on("playersUpdate", (players) => {
-
-    // Limpiar pantalla
     game.innerHTML = "";
 
     for (const id in players) {
-
         const player = players[id];
-
-        // Solo mostrar jugadores de la misma sala
         if (player.room !== currentRoom) continue;
 
         const playerElement = document.createElement("div");
-        playerElement.className = "player";
+
+        // Clase según dirección
+        playerElement.className = `player ${player.direction || "down"}`;
         playerElement.id = id;
 
         playerElement.style.left = player.x + "px";
@@ -119,101 +89,76 @@ socket.on("playersUpdate", (players) => {
         game.appendChild(playerElement);
     }
 
-    // 🔥 Dibujar colisiones (modo debug)
     drawCollisions();
 });
-
-
 
 // ==========================================
 // 🎯 MOVIMIENTO DEL JUGADOR
 // ==========================================
 document.addEventListener("keydown", (e) => {
-
     const speed = 10;
-
     let newX = myPosition.x;
     let newY = myPosition.y;
 
-    if (e.key === "ArrowUp") newY -= speed;
-    if (e.key === "ArrowDown") newY += speed;
-    if (e.key === "ArrowLeft") newX -= speed;
-    if (e.key === "ArrowRight") newX += speed;
+    // Actualizar posición y dirección según tecla
+    if (e.key === "ArrowUp") { newY -= speed; currentDirection = "up"; }
+    if (e.key === "ArrowDown") { newY += speed; currentDirection = "down"; }
+    if (e.key === "ArrowLeft") { newX -= speed; currentDirection = "left"; }
+    if (e.key === "ArrowRight") { newX += speed; currentDirection = "right"; }
 
-    // Límites del mapa
+    // Limitar dentro del mapa
     newX = Math.max(0, Math.min(755, newX));
     newY = Math.max(0, Math.min(455, newY));
 
-    // Verificar colisión
     if (!isColliding(newX, newY)) {
-
         myPosition.x = newX;
         myPosition.y = newY;
 
-        socket.emit("move", myPosition);
-
-        const myPlayer = document.getElementById(socket.id);
-        if (myPlayer) {
-            myPlayer.classList.add("walking");
-        }
+        // Enviar posición + dirección al servidor
+        socket.emit("move", { ...myPosition, direction: currentDirection });
     }
 });
-
-
 
 // ==========================================
 // 🚪 CAMBIO DE SALA
 // ==========================================
 function changeRoom(newRoom) {
-
     socket.emit("changeRoom", newRoom);
 
     game.classList.remove(currentRoom);
     game.classList.add(newRoom);
 
     currentRoom = newRoom;
-
     game.innerHTML = "";
 
     myPosition = { x: 375, y: 225 };
 
-    socket.emit("move", myPosition);
+    socket.emit("move", { ...myPosition, direction: currentDirection });
 }
-
-
 
 // ==========================================
 // 💬 CHAT
 // ==========================================
 socket.on("mensaje", (data) => {
-
     const p = document.createElement("p");
     p.textContent = `${data.usuario}: ${data.texto}`;
-
     mensajes.appendChild(p);
     mensajes.scrollTop = mensajes.scrollHeight;
 });
 
 function enviar() {
-
     if (texto.value.trim() === "") return;
-
     socket.emit("mensaje", texto.value);
     texto.value = "";
 }
 
-
-
 // ==========================================
 // 🟥 DEBUG VISUAL DE COLISIONES
-// (Solo para ver las cajas, puedes borrarlo luego)
 // ==========================================
 function drawCollisions() {
-
     const objects = roomObjects[currentRoom] || [];
 
     for (let obj of objects) {
-
         const box = document.createElement("div");
         box.style.position = "absolute";
         box.style.left = obj.x + "px";
@@ -222,7 +167,6 @@ function drawCollisions() {
         box.style.height = obj.height + "px";
         box.style.border = "2px solid red";
         box.style.pointerEvents = "none";
-
         game.appendChild(box);
     }
 }
