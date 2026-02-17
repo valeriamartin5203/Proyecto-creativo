@@ -13,7 +13,6 @@ const spawnPoints = {
   cafe: { x: 200, y: 400 }
 };
 
-// Sala inicial
 let currentRoom = "plaza";
 let currentDirection = "down";
 let myPosition = { ...spawnPoints[currentRoom] };
@@ -197,7 +196,8 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") { newX -= speed; currentDirection = "left"; }
   if (e.key === "ArrowRight") { newX += speed; currentDirection = "right"; }
 
-  if (e.key === "j") abrirJuego();
+  // Abrir mini juego con J (mayúscula o minúscula)
+  if (e.key.toLowerCase() === "j") abrirJuego();
 
   newX = Math.max(0, Math.min(1030 - 45, newX));
   newY = Math.max(0, Math.min(530 - 45, newY));
@@ -261,8 +261,13 @@ function changeRoom(newRoom) {
   game.classList.add(newRoom);
   currentRoom = newRoom;
 
-  // 👇 Siempre aparece en punto seguro
   myPosition = { ...spawnPoints[newRoom] };
-
   updateVisual();
+
+  // Abrir automáticamente en el café
+  if (newRoom === "cafe") {
+    abrirJuego();
+  } else {
+    cerrarJuego();
+  }
 }
