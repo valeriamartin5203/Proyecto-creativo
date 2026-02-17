@@ -6,13 +6,17 @@ const username = prompt("Ingresa tu nombre:") || "Invitado";
 
 
 // ==========================================
-// 📦 CARGAR DATOS GUARDADOS
+// 📍 SPAWN FIJO POR SALA
 // ==========================================
-let savedData = JSON.parse(localStorage.getItem("playerData"));
+const spawnPoints = {
+  plaza: { x: 375, y: 225 },
+  cafe: { x: 200, y: 400 }
+};
 
-let myPosition = savedData ? { x: savedData.x, y: savedData.y } : { x: 375, y: 225 };
-let currentDirection = savedData ? savedData.direction : "down";
-let currentRoom = savedData ? savedData.room : "plaza";
+// Sala inicial
+let currentRoom = "plaza";
+let currentDirection = "down";
+let myPosition = { ...spawnPoints[currentRoom] };
 
 const game = document.getElementById("game");
 const mensajes = document.getElementById("mensajes");
@@ -24,10 +28,8 @@ game.classList.add(currentRoom);
 // ==========================================
 // 🎯 MINI JUEGO MULTIJUGADOR
 // ==========================================
+let jugando = false;
 
-let jugando = false; // bloquea movimiento
-
-// Crear panel del mini juego
 const miniJuego = document.createElement("div");
 miniJuego.className = "mini-juego hidden";
 miniJuego.innerHTML = `
@@ -40,25 +42,22 @@ miniJuego.innerHTML = `
 
 document.body.appendChild(miniJuego);
 
-// Abrir juego SOLO si estás en el café
 function abrirJuego() {
   if (currentRoom !== "cafe") {
     alert("☕ Solo puedes jugar dentro del café");
     return;
   }
-
   miniJuego.classList.remove("hidden");
   jugando = true;
 }
 
-// Cerrar juego
 function cerrarJuego() {
   miniJuego.classList.add("hidden");
   jugando = false;
 }
 
-// Enviar intento al servidor
 document.addEventListener("click", (e) => {
+
   if (e.target.id === "guessBtn") {
     const numero = document.getElementById("guessInput").value;
     if (!numero) return;
@@ -76,7 +75,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Recibir mensajes del mini juego
 socket.on("gameMessage", (data) => {
   document.getElementById("resultadoJuego").textContent = data.mensaje;
 });
@@ -95,8 +93,7 @@ const mapasColisiones = {
     { x: 300, y: 115, width: 180, height: 180 },
     { x: 0, y: 0, width: 100, height: 600 },
     { x: 850, y: 0, width: 650, height: 900 }
-  ],
-
+  ]
 };
 
 function colisionRect(player, wall) {
@@ -137,19 +134,6 @@ updateVisual();
 
 
 // ==========================================
-// 💾 GUARDAR PROGRESO
-// ==========================================
-function savePlayer() {
-  localStorage.setItem("playerData", JSON.stringify({
-    x: myPosition.x,
-    y: myPosition.y,
-    room: currentRoom,
-    direction: currentDirection
-  }));
-}
-
-
-// ==========================================
 // 📡 ENTRAR AL SERVIDOR
 // ==========================================
 socket.emit("joinGame", {
@@ -162,7 +146,7 @@ socket.emit("joinGame", {
 
 
 // ==========================================
-// 👥 ACTUALIZACIÓN DE OTROS JUGADORES
+// 👥 OTROS JUGADORES
 // ==========================================
 const otherPlayersDivs = {};
 
@@ -202,7 +186,6 @@ socket.on("playersUpdate", (players) => {
 // ==========================================
 document.addEventListener("keydown", (e) => {
 
-  // 🔒 Bloquear movimiento si está jugando
   if (jugando) return;
 
   const speed = 10;
@@ -214,10 +197,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") { newX -= speed; currentDirection = "left"; }
   if (e.key === "ArrowRight") { newX += speed; currentDirection = "right"; }
 
-  // 🎯 Abrir mini juego con J
-  if (e.key === "j") {
-    abrirJuego();
-  }
+  if (e.key === "j") abrirJuego();
 
   newX = Math.max(0, Math.min(1030 - 45, newX));
   newY = Math.max(0, Math.min(530 - 45, newY));
@@ -245,8 +225,6 @@ document.addEventListener("keydown", (e) => {
       y: newY,
       direction: currentDirection
     });
-
-    savePlayer();
   }
 });
 
@@ -268,9 +246,7 @@ function enviar() {
 }
 
 texto.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    enviar();
-  }
+  if (e.key === "Enter") enviar();
 });
 
 
@@ -285,8 +261,8 @@ function changeRoom(newRoom) {
   game.classList.add(newRoom);
   currentRoom = newRoom;
 
-  myPosition = { x: 375, y: 225 };
+  // 👇 Siempre aparece en punto seguro
+  myPosition = { ...spawnPoints[newRoom] };
 
   updateVisual();
-  savePlayer();
 }
