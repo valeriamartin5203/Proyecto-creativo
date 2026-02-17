@@ -4,6 +4,7 @@
 const socket = io();
 const username = prompt("Ingresa tu nombre:") || "Invitado";
 
+
 // ==========================================
 // 📦 CARGAR DATOS GUARDADOS
 // ==========================================
@@ -19,31 +20,104 @@ const texto = document.getElementById("texto");
 
 game.classList.add(currentRoom);
 
+
 // ==========================================
-// 🧱 COLISIONES POR SALA
+// 🎯 MINI JUEGO MULTIJUGADOR
+// ==========================================
+
+let jugando = false; // bloquea movimiento
+
+// Crear panel del mini juego
+const miniJuego = document.createElement("div");
+miniJuego.className = "mini-juego hidden";
+miniJuego.innerHTML = `
+  <h3>🎯 Adivina el número (1 - 20)</h3>
+  <input type="number" id="guessInput" min="1" max="20">
+  <button id="guessBtn">Intentar</button>
+  <p id="resultadoJuego"></p>
+  <button id="cerrarBtn">Cerrar</button>
+`;
+
+document.body.appendChild(miniJuego);
+
+// Abrir juego SOLO si estás en el café
+function abrirJuego() {
+  if (currentRoom !== "cafe") {
+    alert("☕ Solo puedes jugar dentro del café");
+    return;
+  }
+
+  miniJuego.classList.remove("hidden");
+  jugando = true;
+}
+
+// Cerrar juego
+function cerrarJuego() {
+  miniJuego.classList.add("hidden");
+  jugando = false;
+}
+
+// Enviar intento al servidor
+document.addEventListener("click", (e) => {
+  if (e.target.id === "guessBtn") {
+    const numero = document.getElementById("guessInput").value;
+    if (!numero) return;
+
+    socket.emit("guessNumber", {
+      numero,
+      username
+    });
+
+    document.getElementById("guessInput").value = "";
+  }
+
+  if (e.target.id === "cerrarBtn") {
+    cerrarJuego();
+  }
+});
+
+// Recibir mensajes del mini juego
+socket.on("gameMessage", (data) => {
+  document.getElementById("resultadoJuego").textContent = data.mensaje;
+});
+
+
+// ==========================================
+// 🧱 COLISIONES
 // ==========================================
 const mapasColisiones = {
   plaza: [
     { x: 350, y: 0, width: 500, height: 120 },
     { x: 900, y: 0, width: 1000, height: 525 },
     { x: 0, y: 0, width: 100, height: 600 }
-    
   ],
   cafe: [
-    { x: 300, y: 115, width: 180, height: 180 }, //mesita
-    { x: 0, y: 0, width: 100, height: 600 },  //pared
-    { x: 850, y: 0, width: 650, height: 900 } //barra
+    { x: 300, y: 115, width: 180, height: 180 },
+    { x: 0, y: 0, width: 100, height: 600 },
+    { x: 850, y: 0, width: 650, height: 900 }
   ],
   castillo: [
     { x: 250, y: 150, width: 300, height: 80 }
   ]
 };
 
-let mostrarColisiones = true;
+function colisionRect(player, wall) {
+  return (
+    player.x < wall.x + wall.width &&
+    player.x + 45 > wall.x &&
+    player.y < wall.y + wall.height &&
+    player.y + 45 > wall.y
+  );
+}
+
 
 // ==========================================
-// 🎨 SPRITES
+// 👤 CREAR JUGADOR
 // ==========================================
+const myDiv = document.createElement("div");
+myDiv.className = "player";
+game.appendChild(myDiv);
+
 function getSpritePath(direction) {
   switch(direction) {
     case "up": return "personaje/arriba.png";
@@ -54,13 +128,6 @@ function getSpritePath(direction) {
   }
 }
 
-// ==========================================
-// 👤 CREAR JUGADOR
-// ==========================================
-const myDiv = document.createElement("div");
-myDiv.className = "player";
-game.appendChild(myDiv);
-
 function updateVisual() {
   myDiv.style.left = myPosition.x + "px";
   myDiv.style.top = myPosition.y + "px";
@@ -69,6 +136,7 @@ function updateVisual() {
 }
 
 updateVisual();
+
 
 // ==========================================
 // 💾 GUARDAR PROGRESO
@@ -82,8 +150,9 @@ function savePlayer() {
   }));
 }
 
+
 // ==========================================
-// 📡 ENVIAR DATOS AL SERVIDOR
+// 📡 ENTRAR AL SERVIDOR
 // ==========================================
 socket.emit("joinGame", {
   username,
@@ -93,8 +162,9 @@ socket.emit("joinGame", {
   direction: currentDirection
 });
 
+
 // ==========================================
-// 👥 ACTUALIZACIÓN DE JUGADORES
+// 👥 ACTUALIZACIÓN DE OTROS JUGADORES
 // ==========================================
 const otherPlayersDivs = {};
 
@@ -102,7 +172,7 @@ socket.on("playersUpdate", (players) => {
 
   for (const id in players) {
 
-    if (id === socket.id) continue; // 👈 IGNORA TU PROPIO JUGADOR
+    if (id === socket.id) continue;
 
     const p = players[id];
     let div = otherPlayersDivs[id];
@@ -120,7 +190,6 @@ socket.on("playersUpdate", (players) => {
       `url("${getSpritePath(p.direction || "down")}")`;
   }
 
-  // eliminar jugadores que ya no están
   for (const id in otherPlayersDivs) {
     if (!players[id]) {
       game.removeChild(otherPlayersDivs[id]);
@@ -131,23 +200,12 @@ socket.on("playersUpdate", (players) => {
 
 
 // ==========================================
-// 🧠 FUNCIÓN DE COLISIÓN
-// ==========================================
-function colisionRect(player, wall) {
-  return (
-    player.x < wall.x + wall.width &&
-    player.x + 45 > wall.x &&
-    player.y < wall.y + wall.height &&
-    player.y + 45 > wall.y
-  );
-}
-
-
-
-// ==========================================
-// 🎮 MOVIMIENTO CON COLISIÓN
+// 🎮 MOVIMIENTO
 // ==========================================
 document.addEventListener("keydown", (e) => {
+
+  // 🔒 Bloquear movimiento si está jugando
+  if (jugando) return;
 
   const speed = 10;
   let newX = myPosition.x;
@@ -157,6 +215,11 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") { newY += speed; currentDirection = "down"; }
   if (e.key === "ArrowLeft") { newX -= speed; currentDirection = "left"; }
   if (e.key === "ArrowRight") { newX += speed; currentDirection = "right"; }
+
+  // 🎯 Abrir mini juego con J
+  if (e.key === "j") {
+    abrirJuego();
+  }
 
   newX = Math.max(0, Math.min(1030 - 45, newX));
   newY = Math.max(0, Math.min(530 - 45, newY));
@@ -189,6 +252,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
 // ==========================================
 // 💬 CHAT
 // ==========================================
@@ -211,6 +275,7 @@ texto.addEventListener("keydown", (e) => {
   }
 });
 
+
 // ==========================================
 // 🚪 CAMBIO DE SALA
 // ==========================================
@@ -222,44 +287,8 @@ function changeRoom(newRoom) {
   game.classList.add(newRoom);
   currentRoom = newRoom;
 
-  for (const id in otherPlayersDivs) {
-    game.removeChild(otherPlayersDivs[id]);
-    delete otherPlayersDivs[id];
-  }
-
   myPosition = { x: 375, y: 225 };
 
-  game.appendChild(myDiv);
   updateVisual();
   savePlayer();
-
-  dibujarColisiones();
 }
-
-// ==========================================
-// 🎛 ACTIVAR / DESACTIVAR COLISIONES CON C
-// ==========================================
-document.addEventListener("keydown", (e) => {
-  if (e.key === "c") {
-    mostrarColisiones = !mostrarColisiones;
-    dibujarColisiones();
-  }
-});
-
-const music = document.getElementById("bgMusic");
-const musicBtn = document.getElementById("musicBtn");
-
-let isPlaying = false;
-
-musicBtn.addEventListener("click", () => {
-    if (!isPlaying) {
-        music.play();
-        musicBtn.textContent = "🔇 Música OFF";
-        isPlaying = true;
-    } else {
-        music.pause();
-        musicBtn.textContent = "🎵 Música ON";
-        isPlaying = false;
-    }
-});
-
