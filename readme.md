@@ -7,7 +7,7 @@ Los jugadores pueden:
 - 🗺 Cambiar de sala
 - 💬 Chatear en tiempo real
 - 🚫 Colisionar con objetos del mapa
-- 💾 Guardar su progreso automáticamente
+- 🎮 Mini juego adivina un numero
 
 ---
 
@@ -33,8 +33,6 @@ Los jugadores pueden enviarse mensajes dentro de la sala.
 ### 🗺 Sistema de salas
 El juego incluye:
 - Plaza
-- Bosque
-- Castillo
 - Cafetería ☕
 
 Cada sala tiene colisiones propias.
@@ -54,4 +52,3 @@ Cada sala tiene colisiones propias.
 ## Usos
 
 Cancion de pokemon negro ciudad terradia.
-
