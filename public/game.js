@@ -40,16 +40,7 @@ miniJuego.innerHTML = `
 
 document.body.appendChild(miniJuego);
 
-// Abrir juego SOLO si estás en el café
-function abrirJuego() {
-  if (currentRoom !== "cafe") {
-    alert("☕ Solo puedes jugar dentro del café");
-    return;
-  }
 
-  miniJuego.classList.remove("hidden");
-  jugando = true;
-}
 
 // Cerrar juego
 function cerrarJuego() {
@@ -96,9 +87,7 @@ const mapasColisiones = {
     { x: 0, y: 0, width: 100, height: 600 },
     { x: 850, y: 0, width: 650, height: 900 }
   ],
-  castillo: [
-    { x: 250, y: 150, width: 300, height: 80 }
-  ]
+
 };
 
 function colisionRect(player, wall) {
