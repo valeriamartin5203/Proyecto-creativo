@@ -38,13 +38,10 @@ miniJuego.innerHTML = `
   <p id="resultadoJuego"></p>
   <button id="cerrarBtn">Cerrar</button>
 `;
-
 document.body.appendChild(miniJuego);
 
 
-// ==========================================
-// 🔘 BOTÓN PARA ABRIR EL MINI JUEGO
-// ==========================================
+// 🔘 BOTÓN SOLO EN EL CAFÉ
 const botonMiniJuego = document.createElement("button");
 botonMiniJuego.textContent = "🎯 Jugar";
 botonMiniJuego.className = "boton-juego hidden";
@@ -121,7 +118,7 @@ function colisionRect(player, wall) {
 
 
 // ==========================================
-// 👤 CREAR JUGADOR
+// 👤 JUGADOR PRINCIPAL
 // ==========================================
 const myDiv = document.createElement("div");
 myDiv.className = "player";
@@ -156,6 +153,42 @@ socket.emit("joinGame", {
   y: myPosition.y,
   room: currentRoom,
   direction: currentDirection
+});
+
+
+// ==========================================
+// 👥 MULTIJUGADOR
+// ==========================================
+const otherPlayersDivs = {};
+
+socket.on("playersUpdate", (players) => {
+
+  for (const id in players) {
+
+    if (id === socket.id) continue;
+
+    const p = players[id];
+    let div = otherPlayersDivs[id];
+
+    if (!div) {
+      div = document.createElement("div");
+      div.className = "player";
+      otherPlayersDivs[id] = div;
+      game.appendChild(div);
+    }
+
+    div.style.left = p.x + "px";
+    div.style.top = p.y + "px";
+    div.style.backgroundImage =
+      `url("${getSpritePath(p.direction || "down")}")`;
+  }
+
+  for (const id in otherPlayersDivs) {
+    if (!players[id]) {
+      game.removeChild(otherPlayersDivs[id]);
+      delete otherPlayersDivs[id];
+    }
+  }
 });
 
 
@@ -206,6 +239,27 @@ document.addEventListener("keydown", (e) => {
 
 
 // ==========================================
+// 💬 CHAT
+// ==========================================
+socket.on("mensaje", (data) => {
+  const p = document.createElement("p");
+  p.textContent = `${data.usuario}: ${data.texto}`;
+  mensajes.appendChild(p);
+  mensajes.scrollTop = mensajes.scrollHeight;
+});
+
+function enviar() {
+  if (!texto.value.trim()) return;
+  socket.emit("mensaje", texto.value);
+  texto.value = "";
+}
+
+texto.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") enviar();
+});
+
+
+// ==========================================
 // 🚪 CAMBIO DE SALA
 // ==========================================
 function changeRoom(newRoom) {
@@ -219,7 +273,7 @@ function changeRoom(newRoom) {
   myPosition = { ...spawnPoints[newRoom] };
   updateVisual();
 
-  // Mostrar botón SOLO en el café
+  // Mostrar botón solo en el café
   if (newRoom === "cafe") {
     botonMiniJuego.classList.remove("hidden");
   } else {
@@ -227,12 +281,3 @@ function changeRoom(newRoom) {
     cerrarJuego();
   }
 }
-
-// ==========================================// 
-// // 💬 CHAT 
-// ==========================================
-socket.on("mensaje", (data) => {
-  const p = document.createElement("p");
-  p.textContent = ${data.usuario}: ${data.texto};
-  mensajes.appendChild(p); mensajes.scrollTop = mensajes.scrollHeight;
-});
