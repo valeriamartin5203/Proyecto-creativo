@@ -4,7 +4,7 @@
 body {
     font-family: Arial, sans-serif;
 
-    /* Fondo general del juego (por si no hay sala) */
+    /* Fondo general del juego */
     background-image: url("fondos/fondos de el juego.jfif");
     background-size: cover;
     background-position: center;
@@ -12,23 +12,25 @@ body {
     padding: 0;
 }
 
+
 /* ==========================================
-   🎮 CONTENEDOR DEL JUEGO
+   🎮 CONTENEDOR PRINCIPAL DEL JUEGO
 ========================================== */
 #game {
     position: relative;
-    width: 1100px;        /* tamaño del mapa */
+    width: 1100px;
     height: 600px;
     margin: auto;
     border: 3px solid #000;
     overflow: hidden;
 
-    background-size: 1100px 600px;
-    background-color: #033a5f; /* color por defecto si no hay imagen */
+    background-size: cover;
+    background-color: #033a5f; /* color si no hay imagen */
 }
 
+
 /* ==========================================
-   🌳 FONDOS POR SALA
+   🗺️ FONDOS POR SALA
 ========================================== */
 #game.plaza {
     background-image: url("fondos/parque.jpeg");
@@ -40,30 +42,10 @@ body {
     background-position: center;
 }
 
+
 /* ==========================================
-   👤 JUGADOR / PLAYER
+   👤 JUGADOR (SPRITE)
 ========================================== */
-/* Contenedor del juego */
-#game {
-    position: relative;
-    width: 1100px;
-    height: 600px;
-    margin: auto;
-    border: 3px solid #000;
-    overflow: hidden;
-    background-color: #033a5f;
-    background-size: cover;
-}
-
-/* Fondos por sala */
-#game.plaza {
-     background-image: url(parque.jpeg); 
-}
-#game.cafe { 
-    background-image: url(cafe.jpeg); 
-}
-
-/* Jugador */
 .player {
     position: absolute;
     width: 70px;
@@ -73,13 +55,19 @@ body {
     background-position: center;
 }
 
-/* Sprites por dirección */
-.player.down { background-image: url("personaje/frente.png"); }
-.player.up { background-image: url("personaje/arriba.png"); }
-.player.left { background-image: url("personaje/izquierda.png"); }
+
+/* ==========================================
+   🧭 DIRECCIONES DEL JUGADOR
+========================================== */
+.player.down  { background-image: url("personaje/frente.png"); }
+.player.up    { background-image: url("personaje/arriba.png"); }
+.player.left  { background-image: url("personaje/izquierda.png"); }
 .player.right { background-image: url("personaje/derecha.png"); }
 
-/* Nombre */
+
+/* ==========================================
+   🏷️ NOMBRE ENCIMA DEL JUGADOR
+========================================== */
 .player span {
     position: absolute;
     top: -15px;
@@ -100,8 +88,9 @@ h2 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+
 /* ==========================================
-   🔘 BOTONES
+   🔘 BOTONES GENERALES
 ========================================== */
 button {
     padding: 10px 20px;
@@ -115,8 +104,13 @@ button {
     transition: background-color 0.3s ease;
 }
 
+button:hover {
+    background-color: #0056b3;
+}
+
+
 /* ==========================================
-   💬 CHAT
+   💬 CONTENEDOR DEL CHAT
 ========================================== */
 #chatContainer {
     position: fixed;
@@ -132,7 +126,9 @@ button {
 }
 
 
-
+/* ==========================================
+   📜 MENSAJES DEL CHAT
+========================================== */
 #mensajes {
     flex: 1;
     overflow-y: auto;
@@ -140,50 +136,56 @@ button {
     font-size: 12px;
 }
 
+
+/* ==========================================
+   ✍️ INPUT DEL CHAT
+========================================== */
 .chat-input {
     display: flex;
 }
 
+
+/* ==========================================
+   🙈 CLASE OCULTAR ELEMENTOS
+========================================== */
 .hidden {
     display: none;
 }
 
+
 /* ==========================================
-   Mini juego
+   🎯 BOTÓN DEL MINI JUEGO (SOLO EN EL CAFÉ)
 ========================================== */
-
-.hidden {
-  display: none;
-}
-
 .boton-juego {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px 15px;
-  font-size: 16px;
-  background: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 1000;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 1000;
 }
 
 .boton-juego:hover {
-  background: #e68900;
+    background: #e68900;
 }
 
+
+/* ==========================================
+   🎮 VENTANA DEL MINI JUEGO
+========================================== */
 .mini-juego {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border: 3px solid black;
-  border-radius: 10px;
-  z-index: 1000;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border: 3px solid black;
+    border-radius: 10px;
+    z-index: 1000;
 }
-
-
