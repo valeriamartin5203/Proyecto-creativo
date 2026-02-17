@@ -25,7 +25,7 @@ game.classList.add(currentRoom);
 
 
 // ==========================================
-// 🎯 MINI JUEGO MULTIJUGADOR
+// 🎯 MINI JUEGO
 // ==========================================
 let jugando = false;
 
@@ -41,6 +41,19 @@ miniJuego.innerHTML = `
 
 document.body.appendChild(miniJuego);
 
+
+// ==========================================
+// 🔘 BOTÓN PARA ABRIR EL MINI JUEGO
+// ==========================================
+const botonMiniJuego = document.createElement("button");
+botonMiniJuego.textContent = "🎯 Jugar";
+botonMiniJuego.className = "boton-juego hidden";
+document.body.appendChild(botonMiniJuego);
+
+
+// ==========================================
+// FUNCIONES MINI JUEGO
+// ==========================================
 function abrirJuego() {
   if (currentRoom !== "cafe") {
     alert("☕ Solo puedes jugar dentro del café");
@@ -54,6 +67,8 @@ function cerrarJuego() {
   miniJuego.classList.add("hidden");
   jugando = false;
 }
+
+botonMiniJuego.addEventListener("click", abrirJuego);
 
 document.addEventListener("click", (e) => {
 
@@ -145,42 +160,6 @@ socket.emit("joinGame", {
 
 
 // ==========================================
-// 👥 OTROS JUGADORES
-// ==========================================
-const otherPlayersDivs = {};
-
-socket.on("playersUpdate", (players) => {
-
-  for (const id in players) {
-
-    if (id === socket.id) continue;
-
-    const p = players[id];
-    let div = otherPlayersDivs[id];
-
-    if (!div) {
-      div = document.createElement("div");
-      div.className = "player";
-      otherPlayersDivs[id] = div;
-      game.appendChild(div);
-    }
-
-    div.style.left = p.x + "px";
-    div.style.top = p.y + "px";
-    div.style.backgroundImage =
-      `url("${getSpritePath(p.direction || "down")}")`;
-  }
-
-  for (const id in otherPlayersDivs) {
-    if (!players[id]) {
-      game.removeChild(otherPlayersDivs[id]);
-      delete otherPlayersDivs[id];
-    }
-  }
-});
-
-
-// ==========================================
 // 🎮 MOVIMIENTO
 // ==========================================
 document.addEventListener("keydown", (e) => {
@@ -195,9 +174,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") { newY += speed; currentDirection = "down"; }
   if (e.key === "ArrowLeft") { newX -= speed; currentDirection = "left"; }
   if (e.key === "ArrowRight") { newX += speed; currentDirection = "right"; }
-
-  // Abrir mini juego con J (mayúscula o minúscula)
-  if (e.key.toLowerCase() === "j") abrirJuego();
 
   newX = Math.max(0, Math.min(1030 - 45, newX));
   newY = Math.max(0, Math.min(530 - 45, newY));
@@ -230,27 +206,6 @@ document.addEventListener("keydown", (e) => {
 
 
 // ==========================================
-// 💬 CHAT
-// ==========================================
-socket.on("mensaje", (data) => {
-  const p = document.createElement("p");
-  p.textContent = `${data.usuario}: ${data.texto}`;
-  mensajes.appendChild(p);
-  mensajes.scrollTop = mensajes.scrollHeight;
-});
-
-function enviar() {
-  if (!texto.value.trim()) return;
-  socket.emit("mensaje", texto.value);
-  texto.value = "";
-}
-
-texto.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") enviar();
-});
-
-
-// ==========================================
 // 🚪 CAMBIO DE SALA
 // ==========================================
 function changeRoom(newRoom) {
@@ -264,10 +219,11 @@ function changeRoom(newRoom) {
   myPosition = { ...spawnPoints[newRoom] };
   updateVisual();
 
-  // Abrir automáticamente en el café
+  // Mostrar botón SOLO en el café
   if (newRoom === "cafe") {
-    abrirJuego();
+    botonMiniJuego.classList.remove("hidden");
   } else {
+    botonMiniJuego.classList.add("hidden");
     cerrarJuego();
   }
 }

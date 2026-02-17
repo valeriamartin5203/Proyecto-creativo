@@ -156,6 +156,24 @@ button {
   display: none;
 }
 
+.boton-juego {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  font-size: 16px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.boton-juego:hover {
+  background: #e68900;
+}
+
 .mini-juego {
   position: fixed;
   top: 50%;
@@ -167,3 +185,5 @@ button {
   border-radius: 10px;
   z-index: 1000;
 }
+
+
