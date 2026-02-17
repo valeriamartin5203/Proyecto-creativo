@@ -5,20 +5,7 @@ const socket = io();
 const username = prompt("Ingresa tu nombre:") || "Invitado";
 
 
-// ==========================================
-// 📦 CARGAR DATOS GUARDADOS
-// ==========================================
-let savedData = JSON.parse(localStorage.getItem("playerData"));
 
-let myPosition = savedData ? { x: savedData.x, y: savedData.y } : { x: 375, y: 225 };
-let currentDirection = savedData ? savedData.direction : "down";
-let currentRoom = savedData ? savedData.room : "plaza";
-
-const game = document.getElementById("game");
-const mensajes = document.getElementById("mensajes");
-const texto = document.getElementById("texto");
-
-game.classList.add(currentRoom);
 
 
 // ==========================================
@@ -40,7 +27,16 @@ miniJuego.innerHTML = `
 
 document.body.appendChild(miniJuego);
 
+// Abrir juego SOLO si estás en el café
+function abrirJuego() {
+  if (currentRoom !== "cafe") {
+    alert("☕ Solo puedes jugar dentro del café");
+    return;
+  }
 
+  miniJuego.classList.remove("hidden");
+  jugando = true;
+}
 
 // Cerrar juego
 function cerrarJuego() {
