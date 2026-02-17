@@ -227,3 +227,12 @@ function changeRoom(newRoom) {
     cerrarJuego();
   }
 }
+
+// ==========================================// 
+// // 💬 CHAT 
+// ==========================================
+socket.on("mensaje", (data) => {
+  const p = document.createElement("p");
+  p.textContent = ${data.usuario}: ${data.texto};
+  mensajes.appendChild(p); mensajes.scrollTop = mensajes.scrollHeight;
+});
