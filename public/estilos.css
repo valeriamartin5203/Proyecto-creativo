@@ -33,12 +33,12 @@ body {
    🗺️ FONDOS POR SALA
 ========================================== */
 #game.plaza {
-    background-image: url("fondos/parque.jpeg");
+    background-image: url(parque.jpeg);
     background-position: center;
 }
 
 #game.cafe {
-    background-image: url("fondos/cafe.jpeg");
+    background-image: url(cafe.jpeg);
     background-position: center;
 }
 
