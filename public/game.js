@@ -23,6 +23,28 @@ const texto = document.getElementById("texto");
 
 game.classList.add(currentRoom);
 
+// ==========================================
+// 🎵 MÚSICA
+// ==========================================
+const botonMusica = document.getElementById("botonMusica");
+const musicaFondo = document.getElementById("musicaFondo");
+let musicaActiva = false;
+
+botonMusica.addEventListener("click", () => {
+
+  if (!musicaActiva) {
+    musicaFondo.volume = 0.5;
+    musicaFondo.play();
+    botonMusica.textContent = "🔇 Apagar Música";
+    musicaActiva = true;
+  } else {
+    musicaFondo.pause();
+    botonMusica.textContent = "🔊 Música";
+    musicaActiva = false;
+  }
+
+});
+
 
 // ==========================================
 // 🎯 MINI JUEGO
