@@ -217,7 +217,6 @@ document.addEventListener("keydown", (e) => {
     });
   }
 });
-
 // ==========================================
 // 💬 CHAT
 // ==========================================
@@ -229,13 +228,19 @@ socket.on("mensaje", (data) => {
 });
 
 function enviar() {
-  if (!texto.value.trim()) return;
-  socket.emit("mensaje", texto.value);
+  const mensaje = texto.value.trim();
+  if (!mensaje) return;
+
+  // 👇 SOLO enviamos el texto
+  socket.emit("mensaje", mensaje);
+
   texto.value = "";
 }
 
 texto.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") enviar();
+  if (e.key === "Enter") {
+    enviar();
+  }
 });
 
 // ==========================================
